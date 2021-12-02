@@ -1,2 +1,2 @@
-# AdventOfCode_2022
-Solutions for Advent of Code 2022
+# AdventOfCode_2021
+Solutions for Advent of Code 2021
