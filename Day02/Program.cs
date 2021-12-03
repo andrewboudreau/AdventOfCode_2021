@@ -17,19 +17,19 @@ var location = Read(Command.Create)
 Console.WriteLine("Part1: " + location);
 Console.WriteLine("Part1: " + location.X * location.Y);
 
-//location = Read(Command.Create)
-//    .Aggregate(
-//        seed: (Aim: 0, X: 0, Y: 0),
-//        func: (acc, next) =>
-//        {
-//            return next.Direction switch
-//            {
-//                "forward" => (acc.X + next.Distance, acc.Y),
-//                "down" => (acc.X, acc.Y - next.Distance),
-//                "up" => (acc.X, acc.Y + next.Distance),
-//                _ => throw new NotImplementedException(),
-//            };
-//        });
+var location2 = Read(Command.Create)
+    .Aggregate(
+        seed: (Aim: 0, X: 0, Y: 0),
+        func: (acc, next) =>
+        {
+            return next.Direction switch
+            {
+                "forward" => (acc.Aim, acc.X * acc.Aim, acc.Y),
+                "down" => (acc.Aim - next.Distance, acc.X, acc.Y),
+                "up" => (acc.Aim + next.Distance, acc.X, acc.Y),
+                _ => throw new NotImplementedException(),
+            };
+        });
 
 record Command(string Direction, int Distance)
 {

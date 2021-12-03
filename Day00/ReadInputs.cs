@@ -2,10 +2,13 @@
 {
     public static class ReadInputs
     {
-        public static IEnumerable<int> ReadInts() =>
+        public static IEnumerable<T> Read<T>(Func<string, T> factory) =>
             Read()
-                .TakeWhile(x => x != null)
-                .Select(x => int.Parse(x!));
+                .TakeWhile(x =>!string.IsNullOrEmpty(x))
+                .Select(x => factory(x!));
+
+        public static IEnumerable<int> ReadInts() =>
+            Read(x => int.Parse(x));
 
         public static IEnumerable<string?> Read()
         {
