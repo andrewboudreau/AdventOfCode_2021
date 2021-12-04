@@ -1,6 +1,6 @@
 ﻿using static Day00.ReadInputs;
 
-var location = Read(Command.Create)
+var (X, Y) = Read(Command.Create)
     .Aggregate(
         seed: (X: 0, Y: 0),
         func: (acc, next) =>
@@ -14,22 +14,23 @@ var location = Read(Command.Create)
             };
         });
 
-Console.WriteLine("Part1: " + location);
-Console.WriteLine("Part1: " + location.X * location.Y);
+Console.WriteLine($"Part 1: {X * Y}");
 
-var location2 = Read(Command.Create)
+(int Aim, int X, int Y) part2 = Read(Command.Create)
     .Aggregate(
         seed: (Aim: 0, X: 0, Y: 0),
         func: (acc, next) =>
         {
             return next.Direction switch
             {
-                "forward" => (acc.Aim, acc.X * acc.Aim, acc.Y),
-                "down" => (acc.Aim - next.Distance, acc.X, acc.Y),
-                "up" => (acc.Aim + next.Distance, acc.X, acc.Y),
+                "forward" => (acc.Aim, acc.X + next.Distance, acc.Y + next.Distance * acc.Aim),
+                "down" => (acc.Aim + next.Distance, acc.X, acc.Y),
+                "up" => (acc.Aim - next.Distance, acc.X, acc.Y),
                 _ => throw new NotImplementedException(),
             };
         });
+
+Console.WriteLine($"Part2: {part2.X * part2.Y}");
 
 record Command(string Direction, int Distance)
 {
