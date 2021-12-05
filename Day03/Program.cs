@@ -17,10 +17,10 @@ Read(AsEnumerableInts)
         return next;
     })
     .Select(x => x >= 0)
-    .ToConsole(result =>
+    .ToConsole(bits =>
     {
-        var gamma = result.ToInt32();
-        var epsilon = result.Select(x => !x).ToInt32();
+        var gamma = bits.ToInt32();
+        var epsilon = bits.Select(x => !x).ToInt32();
         return new[]
         {
             $"gamma: {gamma}",
