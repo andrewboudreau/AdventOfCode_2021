@@ -1,10 +1,12 @@
 ﻿using static Day00.ReadInputs;
 using Day00;
 
-var AsEnumerableInts = (string src)
-    => src.Select(ch => ch == '1' ? 1 : 0);
+var AsListInts = (string src)
+    => src.Select(ch => ch == '1' ? 1 : 0).ToList();
 
-Read(AsEnumerableInts)
+var report = Read(AsListInts).ToList();
+
+report
     .Aggregate((acc, current) =>
     {
         List<int> next = new();
@@ -28,3 +30,17 @@ Read(AsEnumerableInts)
             $"part1: {gamma * epsilon}"
         };
     });
+
+report
+    .Aggregate(
+        seed: report,
+        func: (acc, current) =>
+        {
+            List<int> next = new();
+            using var accEnumerator = acc.GetEnumerator();
+            while (accEnumerator.MoveNext())
+            {
+                //next.Add(accEnumerator.Current + (currentEnumerator.Current == 0 ? -1 : 1));
+            }
+            return acc;
+        });

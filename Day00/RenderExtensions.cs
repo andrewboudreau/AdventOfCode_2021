@@ -9,5 +9,7 @@
                 Console.WriteLine(output);
             }
         }
+        public static void ToConsole<T>(this IEnumerable<T> source, Func<IEnumerable<T>, string> renderer)
+            => Console.WriteLine(renderer(source));
     }
 }
