@@ -1,0 +1,46 @@
+﻿using static Day00.ReadInputs;
+using Day00;
+
+var school = new List<LanternFish>();
+
+school.AddRange(Read()!.Split(',')
+    .Select(x => new LanternFish(x, fish => school.Add(fish))));
+
+for(var i = 0; i < 256; i++)
+{
+    //Console.WriteLine(string.Join(", ", school));
+    school.ToList().ForEach(x => x.Tick());
+}
+
+//Console.WriteLine(string.Join(", ", school));
+
+Console.WriteLine(school.Count);
+
+public class LanternFish
+{
+    private readonly Action<LanternFish> spawn;
+
+    public LanternFish(int timeTillSpawn, Action<LanternFish> spawn)
+    {
+        TimeTillSpawn = timeTillSpawn;
+        this.spawn = spawn;
+    }
+
+    public int TimeTillSpawn { get; private set; }
+
+    public void Tick()
+    {
+        if (TimeTillSpawn <= 0)
+        {
+            TimeTillSpawn = 7;
+            spawn(new LanternFish(8, spawn));
+        }
+
+        TimeTillSpawn -= 1;
+    }
+
+    public override string ToString()
+    {
+        return TimeTillSpawn.ToString();
+    }
+}
