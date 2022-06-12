@@ -19,5 +19,8 @@ namespace Day00
             bits.CopyTo(bytes, 0);
             return bytes[0];
         }
+
+        public static IEnumerable<int> Split(this IEnumerable<string> source, char split)
+            => source.SelectMany(x => x.Split(split), (a, b) => int.Parse(b));
     }
 }
