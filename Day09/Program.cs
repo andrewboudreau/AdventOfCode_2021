@@ -1,6 +1,4 @@
 ﻿using static Day00.ReadInputs;
-using Day00;
-
 
 var values = Read(row => row.Select(x => (int)char.GetNumericValue(x)))
     ?? throw new NullReferenceException("Height values are required");
@@ -11,37 +9,49 @@ var lows = heights.Positions()
     .Where(p => heights.Neighbors(p.Position).All(n => n.Height > p.Height))
     .ToList();
 
-var basin = new List<(int X, int Y)>();
-var f = lows.First();
+Console.WriteLine($"# of lows: {lows.Count}");
+Console.WriteLine($"risks: {lows.Select(x => x.Height + 1).Sum()}");
+Console.WriteLine($"Lows: {string.Join("|", lows)}");
 
-int c;
-foreach(var n in heights.Neighbors(f.Position))
+var basinSizes = new List<int>();
+
+foreach (var basin in lows)
 {
-    if(n.Height < 9)
+    Console.WriteLine($"Starting basin at {basin.Position}");
+    var visited = new HashSet<(int X, int Y)> { basin.Position };
+    var pending = new Queue<(int X, int Y)>();
+    pending.Enqueue(basin.Position);
+
+    while (pending.TryDequeue(out var current))
     {
-        c += Go(n);
-    }
-}
-
-
-int Go(((int X, int Y), int Height) heights)
-{
-    foreach(var h in heights)
-    {
-        if(h < 9)
-        { 
-
+        foreach (var (Position, Height) in heights.Neighbors(current))
+        {
+            //Console.WriteLine($"checking height {Height} of {Position}");
+            if (Height < 9 && visited.Add(Position))
+            {
+                //Console.WriteLine($"traveling to {Height}");
+                pending.Enqueue(Position);
+            }
         }
     }
+    basinSizes.Add(visited.Count);
+    Console.WriteLine($"Completed basin at {basin.Position}, it was {visited.Count} cells big.");
+    Console.WriteLine($"Lows: {string.Join("|", visited)}");
+    Console.WriteLine("");
 }
 
+var threeLargest = basinSizes
+    .OrderByDescending(x => x)
+    .Take(3).ToList();
 
-//heights.Render();
-Console.WriteLine($"lows: {lows.Count}");
-Console.WriteLine($"risks: {lows.Select(x => x.Height + 1).Sum()}");
+Console.WriteLine($"Largest Basins: {string.Join(", ", threeLargest)}");
 
-//Console.WriteLine($"{string.Join("|", heights.Neighbors((0,0)))}");
-//Console.WriteLine($"{string.Join("|", lows)}");
+var solution2 = basinSizes
+    .OrderByDescending(x => x)
+    .Take(3)
+    .Aggregate((product, next) => product * next);
+
+Console.WriteLine($"Solution 2 is : {solution2}");
 
 
 public class HeightMap
