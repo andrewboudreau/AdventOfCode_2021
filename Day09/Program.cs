@@ -14,21 +14,24 @@ var lows = heights.Positions()
 var basin = new List<(int X, int Y)>();
 var f = lows.First();
 
-int a = 0;
-foreach (var n in heights.Neighbors(f.Position))
+int c;
+foreach(var n in heights.Neighbors(f.Position))
 {
-    if (n.Height < 9)
+    if(n.Height < 9)
     {
-
+        c += Go(n);
     }
 }
 
 
-int Go(List<((int X, int Y), int Height)> heights)
+int Go(((int X, int Y), int Height) heights)
 {
-    foreach (var h in heights)
+    foreach(var h in heights)
     {
-        if (h <)
+        if(h < 9)
+        { 
+
+        }
     }
 }
 
