@@ -2,9 +2,15 @@
 {
     public static class ReadInputs
     {
+        public static IEnumerable<int> AsInts(string source)
+            => source.Select(c => (int)char.GetNumericValue(c));
+
+        public static IEnumerable<IEnumerable<int>> ReadAsRowsOfInts()
+        => Read(AsInts).Select(x => x);
+
         public static IEnumerable<T> Read<T>(Func<string, T> factory) =>
             Read()
-                .TakeWhile(x =>!string.IsNullOrEmpty(x))
+                .TakeWhile(x => !string.IsNullOrEmpty(x))
                 .Select(x => factory(x!));
 
         public static IEnumerable<int> ReadInts() =>
