@@ -16,12 +16,7 @@ public class Node<T>
     public T SetValue(T value)
         => Value = value;
     public T SetValue(Func<T, T> setter)
-        => Value = setter(Value);
-
-    public static implicit operator T(Node<T> node)
-    {
-        return node.Value;
-    }
+        => SetValue(setter(Value));
 
     public void Deconstruct(out int x, out int y, out T value)
     {
@@ -35,6 +30,9 @@ public class Node<T>
         x = X;
         y = Y;
     }
+    public override string ToString() => $"{X},{Y} {Value}";
+
+    public static implicit operator T(Node<T> node) => node.Value;
 }
 
 public class Grid<T> : IEnumerable<Node<T>>
@@ -57,15 +55,15 @@ public class Grid<T> : IEnumerable<Node<T>>
         {
             foreach (var node in row)
             {
-                nodes.Add(new Node<T>(x, y++, node));
+                nodes.Add(new Node<T>(x++, y, node));
             }
 
             if (width == 0)
             {
-                width = y;
+                width = x;
             }
-            x++;
-            y = 0;
+            x = 0;
+            y++;
         }
     }
 
@@ -80,7 +78,7 @@ public class Grid<T> : IEnumerable<Node<T>>
 
             int offset = x * width + y;
             if (offset < 0 || offset >= nodes.Count) return default;
-            return new Node<T>(x, y, nodes[offset]);
+            return nodes[offset];
         }
     }
 
@@ -159,12 +157,14 @@ public class Grid<T> : IEnumerable<Node<T>>
         }
     }
 
-    public Grid<T> Render(int x = 0, int y = 0, Action<string>? draw = default)
+    public Grid<T> Render(int x = 25, int y = 2, Action<string>? draw = default, Action<int, int>? setPosition = default)
     {
+
         draw ??= Console.WriteLine;
+        setPosition ??= Console.SetCursorPosition;
         foreach (var row in Rows())
         {
-            Console.SetCursorPosition(x, y++);
+            setPosition(x, y++);
             draw(string.Join("", row.Select(x => x.Value)));
         }
 
@@ -176,7 +176,8 @@ public class Grid<T> : IEnumerable<Node<T>>
         draw ??= Console.WriteLine;
         foreach (var row in Rows())
         {
-            draw(string.Join("", row));
+            draw(string.Join("", row.Select(x => x.Value)));
+            //draw(string.Join("", row.Select(x => $"({x.X},{x.Y})[{x.Value}]")));
         }
 
         return this;

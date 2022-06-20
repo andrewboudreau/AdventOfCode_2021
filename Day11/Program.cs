@@ -1,49 +1,49 @@
 ﻿using static Day00.ReadInputs;
 
 static int AddOne(int value) => value + 1;
+static int ToZero(int value) => 0;
 
 var map = new Grid<int>(ReadAsRowsOfInts());
 
-void Tick()
+HashSet<(int, int)> flashed = new();
+List<Node<int>> flashing;
+
+int Tick()
 {
     map.Each(n => n.SetValue(AddOne));
-
-    var charged = map.Where(n => n.Value > 9);
-    while (charged.Any())
+    while ((flashing = map.Where(n => n.Value > 9 && !flashed.Contains((n.X, n.Y))).ToList()).Any())
     {
-        charged = map.Where(n => n.Value > 9);
+        foreach (var flash in flashing)
+        {
+            if (flashed.Add((flash.X, flash.Y)))
+            {
+                foreach (var neighbor in map.Neighbors(flash))
+                {
+                    neighbor.SetValue(AddOne);
+                }
+
+                flash.SetValue(ToZero);
+            }
+        }
     }
 
-map.WhileTrue(nodes =>
+    foreach (var node in flashed)
     {
-        nodes
-            .Each(n => n.SetValue(n.Value + 1))
-            .Each(n =>
-            {
-                bool again;
-                do
-                {
-                    again = false;
-                    if (n.Value > 9)
-                    {
-                        var flashed =
-                            map.Neighbors(n)
-                            .Select(x => x.SetValue(x.Value + 1));
+        map[node.Item1, node.Item2].SetValue(ToZero);
+    }
 
+    var count = flashed.Count;
+    flashed.Clear();
+    return count;
+}
 
-                        return;
-
-                            ).ToList();
-
-                n.SetValue(0);
-            };
-    } while (again) ;
-});
-
-
-Console.WriteLine("Press 'q' to quit, any other key to tick.");
 while (Console.ReadKey().KeyChar != 'q')
 {
-    Tick();
-    map.Render();
+    Console.WriteLine("");
+    map.WriteTo();
+    var flashes = Tick();
+    Console.WriteLine("------------ " + flashes);
+    map.WriteTo();
+    Console.WriteLine("");
+    Console.WriteLine("Press 'q' to quit, any other key to tick.");
 }
