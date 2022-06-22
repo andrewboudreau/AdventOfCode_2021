@@ -3,33 +3,31 @@
 static int AddOne(int value) => value + 1;
 static int ToZero(int value) => 0;
 
-var map = new Grid<int>(ReadAsRowsOfInts());
+var grid = new Grid<int>(ReadAsRowsOfInts());
 
-HashSet<(int, int)> flashed = new();
+HashSet<Node<int>> flashed = new();
 List<Node<int>> flashing;
 
-int Tick()
+int Step()
 {
-    map.Each(n => n.SetValue(AddOne));
-    while ((flashing = map.Where(n => n.Value > 9 && !flashed.Contains((n.X, n.Y))).ToList()).Any())
+    List<Node<int>> query() => grid.Where(n => n.Value > 9 && flashed.Add(n)).ToList();
+    grid.Each(n => n.SetValue(AddOne));
+
+    while ((flashing = query()).Any())
     {
         foreach (var flash in flashing)
         {
-            if (flashed.Add((flash.X, flash.Y)))
+            foreach (var neighbor in grid.Neighbors(flash))
             {
-                foreach (var neighbor in map.Neighbors(flash))
-                {
-                    neighbor.SetValue(AddOne);
-                }
-
-                flash.SetValue(ToZero);
+                neighbor.SetValue(AddOne);
             }
         }
     }
 
-    foreach (var node in flashed)
+    foreach (var (X, Y) in flashed)
     {
-        map[node.Item1, node.Item2].SetValue(ToZero);
+        _ = grid[X, Y]?.SetValue(ToZero) 
+            ?? throw new InvalidOperationException($"Invalid grid position ({X},{Y}).");
     }
 
     var count = flashed.Count;
@@ -37,13 +35,15 @@ int Tick()
     return count;
 }
 
+var flashes = 0;
+var step = 1;
 while (Console.ReadKey().KeyChar != 'q')
 {
     Console.WriteLine("");
-    map.WriteTo();
-    var flashes = Tick();
-    Console.WriteLine("------------ " + flashes);
-    map.WriteTo();
+    grid.WriteTo();
+    flashes += Step();
+    Console.WriteLine(step++ + " steps ------------ flashses: " + flashes);
+    grid.WriteTo();
     Console.WriteLine("");
     Console.WriteLine("Press 'q' to quit, any other key to tick.");
 }

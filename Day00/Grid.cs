@@ -30,6 +30,7 @@ public class Node<T>
         x = X;
         y = Y;
     }
+
     public override string ToString() => $"{X},{Y} {Value}";
 
     public static implicit operator T(Node<T> node) => node.Value;
@@ -53,9 +54,9 @@ public class Grid<T> : IEnumerable<Node<T>>
 
         foreach (var row in map)
         {
-            foreach (var node in row)
+            foreach (var value in row)
             {
-                nodes.Add(new Node<T>(x++, y, node));
+                nodes.Add(new Node<T>(x++, y, value));
             }
 
             if (width == 0)
@@ -76,7 +77,7 @@ public class Grid<T> : IEnumerable<Node<T>>
             if (y < 0) return default;
             if (y >= width) return default;
 
-            int offset = x * width + y;
+            int offset = y * width + x;
             if (offset < 0 || offset >= nodes.Count) return default;
             return nodes[offset];
         }
@@ -159,7 +160,6 @@ public class Grid<T> : IEnumerable<Node<T>>
 
     public Grid<T> Render(int x = 25, int y = 2, Action<string>? draw = default, Action<int, int>? setPosition = default)
     {
-
         draw ??= Console.WriteLine;
         setPosition ??= Console.SetCursorPosition;
         foreach (var row in Rows())
