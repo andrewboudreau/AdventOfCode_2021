@@ -1,152 +1,86 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-
 public class Graph<T> : IEnumerable<Node<T>>
 {
-    private readonly List<Node<T>> nodes;
-    private readonly int width;
+    private readonly HashSet<Node<T>> nodes;
 
-    public Graph(IEnumerable<string> rows, Func<string, IEnumerable<T>> factory)
-       : this(rows.SelectMany(factory))
+    public Graph(IEnumerable<(T Left, T Right)> edges)
     {
+        var pairs = edges.ToList();
+        nodes = new HashSet<Node<T>>(pairs.Count);
+     
+        var values = new HashSet<T>(pairs.Count);
+        Node<T>? left = null;
+        Node<T>? right = null;
+
+        foreach ((T Left, T Right) in edges)
+        {
+            left = null;
+            right = null;
+            if (values.Add(Left))
+            {
+                left = new Node<T>(Left);
+                nodes.Add(left);
+            }
+
+            if (values.Add(Right))
+            {
+                right = new Node<T>(Right);
+                nodes.Add(right);
+            }
+
+            left ??= nodes.First(x => x.Value!.Equals(Left));
+            right ??= nodes.First(x => x.Value!.Equals(Right));
+
+            left.AddNeighbor(right);
+            right.AddNeighbor(left);
+        }
     }
 
-    public Graph(IEnumerable<T> map)
-    {
-        nodes = new List<Node<T>>();
+    public IEnumerable<Node<T>> Nodes => nodes;
 
-        foreach (var row in map)
+    public Graph<T> WhileTrue(Func<Graph<T>, bool> operation)
+    {
+        while (operation(this)) ;
+        return this;
+    }
+
+    public Graph<T> Each(Action<Node<T>> action)
+    {
+        foreach (var node in Nodes)
         {
-            nodes.Add(new Node<T>(x++, y, value));
+            action(node);
         }
 
-        if (width == 0)
+        return this;
+    }
+
+    public Graph<T> Render(int x = 25, int y = 2, Action<string>? draw = default, Action<int, int>? setPosition = default)
+    {
+        draw ??= Console.WriteLine;
+        setPosition ??= Console.SetCursorPosition;
+        foreach (var node in Nodes)
         {
-            width = x;
+            setPosition(x, y++);
+            draw(string.Join(" ", node.Value));
         }
-        x = 0;
-        y++;
-    }
-}
 
-public Node<T>? this[int x, int y]
-{
-    get
+        return this;
+    }
+
+    public Graph<T> WriteTo(Action<string>? draw = default)
     {
-        if (x < 0) return default;
-        if (x >= width) return default;
-        if (y < 0) return default;
-        if (y >= width) return default;
+        draw ??= Console.WriteLine;
+        foreach (var node in Nodes)
+        {
+            draw(string.Join(" ", node.Value));
+        }
 
-        int offset = y * width + x;
-        if (offset < 0 || offset >= nodes.Count) return default;
-        return nodes[offset];
-    }
-}
-
-public IEnumerable<Node<T>> Neighbors(Node<T> position, bool withDiagonals = true)
-{
-    if (withDiagonals && this[position.X - 1, position.Y + 1] is Node<T> upLeft)
-    {
-        yield return upLeft;
+        return this;
     }
 
-    if (this[position.X, position.Y + 1] is Node<T> up)
-    {
-        yield return up; ;
-    }
+    public IEnumerator<Node<T>> GetEnumerator()
+        => Nodes.GetEnumerator();
 
-    if (withDiagonals && this[position.X + 1, position.Y + 1] is Node<T> upRight)
-    {
-        yield return upRight;
-    }
-
-    if (this[position.X - 1, position.Y] is Node<T> left)
-    {
-        yield return left;
-    }
-
-    if (this[position.X + 1, position.Y] is Node<T> right)
-    {
-        yield return right;
-    }
-
-    if (withDiagonals && this[position.X - 1, position.Y - 1] is Node<T> downLeft)
-    {
-        yield return downLeft;
-    }
-
-    if (this[position.X, position.Y - 1] is Node<T> down)
-    {
-        yield return down;
-    }
-
-    if (withDiagonals && this[position.X + 1, position.Y - 1] is Node<T> downRight)
-    {
-        yield return downRight;
-    }
-}
-
-public IEnumerable<Node<T>> Nodes()
-{
-    for (var offset = 0; offset < nodes.Count; offset++)
-    {
-        yield return nodes[offset];
-    }
-}
-
-public Grid<T> WhileTrue(Func<Grid<T>, bool> operation)
-{
-    while (operation(this)) ;
-    return this;
-}
-
-public Grid<T> Each(Action<Node<T>> action)
-{
-    foreach (var node in Nodes())
-    {
-        action(node);
-    }
-
-    return this;
-}
-
-public IEnumerable<IEnumerable<Node<T>>> Rows()
-{
-    for (var row = 0; row < nodes.Count / width; row++)
-    {
-        yield return nodes.Skip(row * width).Take(width);
-    }
-}
-
-public Grid<T> Render(int x = 25, int y = 2, Action<string>? draw = default, Action<int, int>? setPosition = default)
-{
-    draw ??= Console.WriteLine;
-    setPosition ??= Console.SetCursorPosition;
-    foreach (var row in Rows())
-    {
-        setPosition(x, y++);
-        draw(string.Join("", row.Select(x => x.Value)));
-    }
-
-    return this;
-}
-
-public Grid<T> WriteTo(Action<string>? draw = default)
-{
-    draw ??= Console.WriteLine;
-    foreach (var row in Rows())
-    {
-        draw(string.Join("", row.Select(x => x.Value)));
-        //draw(string.Join("", row.Select(x => $"({x.X},{x.Y})[{x.Value}]")));
-    }
-
-    return this;
-}
-
-public IEnumerator<Node<T>> GetEnumerator()
-    => Nodes().GetEnumerator();
-
-IEnumerator IEnumerable.GetEnumerator()
-    => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator()
+        => GetEnumerator();
 }

@@ -1,15 +1,26 @@
 ﻿using static Day00.ReadInputs;
 
-var grid = new List<Node<Cave>>();
-var f = Read(x =>
+var edges = Read(x =>
 {
     var parts = x.Split("-");
-    grid.Add(new Node<Cave>(1, 1, new Cave(parts[0])));
-    grid.Add(new Node<Cave>(1, 1, new Cave(parts[1])));
+    return (
+        new Cave(parts[0]),
+        new Cave(parts[1])
+    );
 });
 
+var caves = new Graph<Cave>(edges);
+caves.WriteTo();
+foreach(var cave in caves)
+{
+    Console.WriteLine(cave.Value.Name);
+    foreach(var n in cave.Neighbors)
+    {
+        Console.WriteLine("  "+n.Value);
+    }
+}    
 
-public class Cave
+public class Cave : IEquatable<Cave>
 {
     public Cave(string name)
     {
@@ -37,4 +48,18 @@ public class Cave
     public bool Start => Name == "start";
 
     public bool End => Name == "end";
+
+    public bool Equals(Cave? other)
+        => other?.Name?.Equals(Name) ?? false;
+
+    public override bool Equals(object? obj)
+        => Equals(obj as Cave);
+
+    public override int GetHashCode()
+        => Name.GetHashCode();
+
+    public override string ToString()
+    {
+        return Name;
+    }
 }
