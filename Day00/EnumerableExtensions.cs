@@ -22,5 +22,6 @@ namespace Day00
 
         public static IEnumerable<int> Split(this IEnumerable<string> source, char split)
             => source.SelectMany(x => x.Split(split), (a, b) => int.Parse(b));
+
     }
 }

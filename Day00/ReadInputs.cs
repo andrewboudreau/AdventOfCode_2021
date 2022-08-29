@@ -33,5 +33,8 @@
                     yield return Console.ReadLine();
             }
         }
+
+        public static T ReadTo<T>(Func<IEnumerable<string?>, T> factory)
+            => factory(Read());
     }
 }
