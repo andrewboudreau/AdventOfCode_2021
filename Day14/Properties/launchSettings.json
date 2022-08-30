@@ -2,7 +2,7 @@
   "profiles": {
     "Day14": {
       "commandName": "Project",
-      "commandLineArgs": "input.txt"
+      "commandLineArgs": "sample.txt"
     }
   }
 }
